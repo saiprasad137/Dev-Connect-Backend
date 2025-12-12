@@ -14,14 +14,16 @@
 - POST /request/send/interested/:userId
 - POST /request/send/ignored/:userId
 
-- POST /request/send/:status/:userId
+<!-- - POST /request/send/:status/:userId -->
 
 - POST /request/review/accepted/:reqId
 - POST /request/review/rejected/:reqId
 
+<!-- - POST /request/review/:status/:reqId -->
+
 ##  userRouter
+- GET /user/requests/received
 - GET /user/connections
-- GET /user/received
 - GET /user/feed - Gets you the profiles of other users on platform
 
 

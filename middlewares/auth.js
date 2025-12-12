@@ -26,13 +26,15 @@ const userAuth = async (req,res,next) => {
 
         const decodedObj = await jwt.verify(token , 'vodelasaiprasad');
 
-        console.log('decoded obj', decodedObj);
+        // console.log('decoded obj', decodedObj);
         
         const { _id } = decodedObj;
         const user = await User.findById(_id);
         
         if( !user )
             throw new Error('User not found');
+        
+        // console.log('user', user);
         req.user = user;
         next();
     } catch(err){
