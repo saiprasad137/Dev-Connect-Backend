@@ -1,6 +1,7 @@
 const express = require('express');
 const { userAuth } = require('../middlewares/auth');
 const connectionRequest = require('../models/connectionRequest')
+const User = require('../models/user');
 
 const userRouter = express.Router();
 
@@ -54,5 +55,53 @@ userRouter.get('/user/connections', userAuth, async (req, res, next) => {
     }
 })
 
+
+userRouter.get('/feed', userAuth, async (req, res, next) => {
+
+    // User should see all the user cards except
+    // 1. His Own card
+    // 2. His connections
+    // 3. Ignored people
+    // 4. already sent the connetion request
+
+    // Example : 
+
+    const loggedInUser = req.user;
+
+    console.log('params', req.query);
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit = limit > 50 ? 50 : limit;
+    const skip = (page - 1) * 2;
+
+    const connectionReqs = await connectionRequest.find({
+        $or: [
+            { fromUserId: loggedInUser._id },
+            { toUserId: loggedInUser._id }
+        ]
+    }).select("fromUserId toUserId")
+
+
+    const hideUsersFromFeed = new Set();
+    connectionReqs.forEach((req) => {
+        hideUsersFromFeed.add(req.fromUserId.toString());
+        hideUsersFromFeed.add(req.toUserId.toString());
+    });
+
+    const users = await User.find({
+        $and: [
+            { _id: { $ne: loggedInUser._id } },
+            {
+                _id: {
+                    $nin: Array.from(hideUsersFromFeed)
+                }
+            }
+        ]
+
+    }).select('firstName lastName').skip(skip).limit(limit);
+
+    console.log('users', users);
+    res.json({ users: users })
+})
 
 module.exports = userRouter
