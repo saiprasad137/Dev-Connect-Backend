@@ -7,36 +7,46 @@ const { validateEditProfileData } = require('../utils/validation');
 
 const profileRouter = express.Router();
 
-profileRouter.get('/profile', userAuth, async (req,res) => {
+profileRouter.get('/profile', userAuth, async (req, res) => {
 
     try {
-    const cookie = req.cookies;
-    console.log('cookie', cookie);
+        const cookie = req.cookies;
+        console.log('cookie', cookie);
 
-    const { token } = cookie;
-     if ( !token )
-        throw new Error('Invalid Token');
-    const decodedMsg = await jwt.verify(token , 'vodelasaiprasad');
+        const { token } = cookie;
+        if (!token)
+            throw new Error('Invalid Token');
+        const decodedMsg = await jwt.verify(token, 'vodelasaiprasad');
 
-    const { _id } = decodedMsg;
-    
-    const user = await User.findById(_id);
-    console.log('logged in user is : ' + user.firstName);
-    if ( !user )
-        throw new Error("User invalid");
+        const { _id } = decodedMsg;
 
-    res.send('User :'+ user);
-    } catch(err) {
+        const user = await User.findById(_id);
+        console.log('logged in user is : ' + user.firstName);
+        if (!user)
+            throw new Error("User invalid");
+
+        res.send('User :' + user);
+    } catch (err) {
         res.status(400).send('Error while accessing profile : ' + err)
     }
 })
 
-profileRouter.patch('/profile/edit', userAuth, async (req,res) => {
+profileRouter.get("/profile/view", userAuth, async (req, res) => {
+    try {
+        const user = req.user;
+
+        res.send(user);
+    } catch (err) {
+        res.status(400).send("ERROR while viewing profile" + err.message);
+    }
+});
+
+profileRouter.patch('/profile/edit', userAuth, async (req, res) => {
 
     try {
         console.log('req.body in profile edit' + req.body.age);
 
-        if(!validateEditProfileData(req)){
+        if (!validateEditProfileData(req)) {
             throw new Error('Invalid Edit Request');
         }
 
@@ -47,10 +57,10 @@ profileRouter.patch('/profile/edit', userAuth, async (req,res) => {
         console.log('loggedinuser after changes', loggedInUser)
         await loggedInUser.save();
         res.json({
-            message : ` Profile updated`,
-            data : loggedInUser
+            message: ` Profile updated`,
+            data: loggedInUser
         });
-    } catch(err) {
+    } catch (err) {
         res.status(400).send('Error while editing profile : ' + err)
     }
 })
