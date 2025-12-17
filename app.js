@@ -31,10 +31,10 @@ app.use('/', userRouter);
 
 connectDB().then(() => {
   console.log('database connection extablished')
-  app.listen(3000, () => {
+  app.listen(3000, "0.0.0.0", () => {
     console.log('connected to port 3000')
   })
 }).catch(err => {
-  console.log('database connection not established'+ err)
+  console.log('database connection not established' + err)
 })
 
