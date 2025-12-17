@@ -35,6 +35,6 @@ connectDB().then(() => {
     console.log('connected to port 3000')
   })
 }).catch(err => {
-  console.log('database connection not established')
+  console.log('database connection not established'+ err)
 })
 
